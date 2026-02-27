@@ -1,4 +1,5 @@
 using System;
+using Cubes.Merge;
 using Cysharp.Threading.Tasks;
 using Gameplay.Cube;
 using Services;
@@ -9,22 +10,25 @@ namespace Gameplay
     public class GameMediator : IDisposable
     {
         private readonly InputService _inputService;
+        private readonly MergeService _mergeService;
         
         private CubeSpawner _cubeSpawner;
         private CubeView _currentCube;
 
         private float _dragSensitivity = 0.01f;
-        private float _boardHalfWidth = 5;
-        private float _launchForce = 1;
+        private float _boardHalfWidth = 2.478f;
+        private float _launchForce = 30;
 
-        private Vector3 _spawnPoint = new Vector3(0,0,0);
+        private Vector3 _spawnPoint = new Vector3(0,-2.288f,-22.27f);
 
         public GameMediator(
             CubeSpawner spawner,
-            InputService inputService)
+            InputService inputService,
+            MergeService mergeService)
         {
             _cubeSpawner = spawner;
             _inputService = inputService;
+            _mergeService = mergeService;
         }
         
         public void Construct()
@@ -63,6 +67,7 @@ namespace Gameplay
         private void SpawnNextCube()
         {
             _currentCube = _cubeSpawner.SpawnCube(_spawnPoint);
+            _mergeService.RegisterCube(_currentCube);
         }
 
         public void Dispose()

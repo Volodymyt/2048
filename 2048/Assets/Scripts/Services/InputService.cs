@@ -8,7 +8,7 @@ namespace Services
     {
         public event Action OnFingerDown;
         public event Action OnFingerUp;
-        public event Action<float> OnFingerDrag; // delta X
+        public event Action<float> OnFingerDrag;
 
         private bool _isDragging;
         private float _previousX;

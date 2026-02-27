@@ -1,14 +1,18 @@
+using Cubes.Merge;
 using Gameplay;
 using Gameplay.Cube;
 using Services;
 using StateMachine.Global;
 using StateMachine.Global.States;
+using UnityEngine;
 using Zenject;
 
 namespace Installers
 {
     public class Installer : MonoInstaller
     {
+        [SerializeField] private CubeConfig _cubeConfig;
+        
         public override void InstallBindings()
         {
             BindGlobalStateMachine();
@@ -27,12 +31,14 @@ namespace Installers
         {
             Container.Bind<GameMediator>().AsSingle();
             Container.Bind<CubeSpawner>().AsSingle();
+            Container.Bind<CubeConfig>().FromScriptableObject(_cubeConfig).AsSingle();
         }
         
         private void BindServices()
         {
             Container.Bind<IAssetProviderService>().To<AssetProviderService>().AsSingle();
             Container.BindInterfacesAndSelfTo<InputService>().AsSingle();
+            Container.Bind<MergeService>().AsSingle();
         }
     }
 }
