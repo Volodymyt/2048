@@ -1,3 +1,4 @@
+using Gameplay;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -9,6 +10,12 @@ namespace StateMachine.Global.States
     {
         private const string SceneName = "Game Scene";
 
+        private readonly GameMediator _gameMediator;
+
+        public GameplayState(GameMediator gameMediator)
+        {
+            _gameMediator = gameMediator;
+        }
         
         public override void Enter()
         {
@@ -20,6 +27,7 @@ namespace StateMachine.Global.States
         {
             if (scene.name == SceneName)
             {
+                _gameMediator.Construct();
                 SceneManager.sceneLoaded -= OnSceneLoaded;
             }
         }
