@@ -21,6 +21,7 @@ namespace StateMachine.Global.States
         {
             Subscribe();
             SceneManager.LoadScene(SceneName);
+            Debug.Log("enter gameplay state");
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

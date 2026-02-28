@@ -1,9 +1,13 @@
 using System;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using Gameplay.Cube;
 using Services;
+using StateMachine.Global;
+using StateMachine.Global.States;
 using TMPro;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Gameplay
 {
@@ -48,6 +52,11 @@ namespace Gameplay
         
         public void Construct()
         {
+            
+            foreach (var cube in _mergeService.Cubes.ToList())
+                Object.Destroy(cube.gameObject);
+            _mergeService.Clear();
+            
             _inputService.OnFingerDrag += MoveCube;
             _inputService.OnFingerUp += () => LaunchCube().Forget();
             _cubeSpawner.Initialize();
@@ -81,7 +90,19 @@ namespace Gameplay
         
         private void Restart()
         {
+            foreach (var cube in _mergeService.Cubes.ToList())
+                Object.Destroy(cube.gameObject);
+    
+            _mergeService.Clear();
             _scoreService.Reset();
+            _gameOverView.Hide();
+            _canLaunch = true;
+    
+            _inputService.OnFingerDrag += MoveCube;
+            _inputService.OnFingerUp += () => LaunchCube().Forget();
+            _deadLine.OnGameOver += HandleGameOver;
+    
+            SpawnNextCube();
         }
         
         private void MoveCube(float delta)
@@ -127,6 +148,11 @@ namespace Gameplay
         {
             _deadLine.OnGameOver -= HandleGameOver;
             _scoreService.OnScoreChanged -= _scoreView.UpdateScore;
+            _inputService.OnFingerDrag -= MoveCube;
+            _inputService.OnFingerUp -= () => LaunchCube().Forget();
+    
+            _currentCube = null;
+            _canLaunch = true;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Gameplay.Cube
 {
     public class CubeView : MonoBehaviour
     {
-        [SerializeField] private TMP_Text _label;
+        [SerializeField] private TMP_Text[] _labels;
         [SerializeField] private MeshRenderer _renderer;
 
         
@@ -16,8 +16,10 @@ namespace Gameplay.Cube
         private MergeService _mergeService;
         private CubeConfig _cubeConfig;
         private ScoreService _scoreService;
-        private ParticleSystem _mergeParticles;
         private CameraShakeService _cameraShakeService;
+        
+        private ParticleSystem _mergeParticles;
+        private Collider _collider;
         
         public int Value { get; private set; }
         public bool IsMerging { get; private set; }
@@ -48,14 +50,18 @@ namespace Gameplay.Cube
         private void Awake()
         {
             _rb = GetComponent<Rigidbody>();
+            _collider = GetComponent<Collider>();
+            
             _rb.sleepThreshold = 0f;
         }
 
         public void Init(int value, CubeConfig config)
         {
             Value = value;
-            _label.text = value.ToString();
-            int colorIndex = (int)Mathf.Log(value, 2) - 1;
+            foreach (var label in _labels)
+                label.text = value.ToString();
+            
+            int colorIndex = Mathf.Clamp((int)Mathf.Log(value, 2) - 1, 0, config.PowerOfTwoColors.Length - 1);
             _renderer.material.color = config.PowerOfTwoColors[colorIndex];
         }
 
@@ -74,12 +80,16 @@ namespace Gameplay.Cube
         public void PlayMergeAnimation()
         {
             transform.DOKill();
-            transform.DOPunchScale(Vector3.one * 0.3f, 0.3f, 5, 0.5f);
+            transform.DOPunchScale(Vector3.one * 0.3f, 0.3f, 5, 0.5f)
+                .OnComplete(() => transform.localScale = Vector3.one);
+            _collider.enabled = false;
             _rb.AddForce(Vector3.up * _cubeConfig.MergeJumpForce, ForceMode.Impulse);
             
             _mergeParticles.transform.position = transform.position;
             _mergeParticles.Play();
             _cameraShakeService.Shake().Forget();
+            
+            DOVirtual.DelayedCall(0.4f, () => _collider.enabled = true);
         }
         
         private void OnCollisionEnter(Collision collision)

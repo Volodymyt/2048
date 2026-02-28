@@ -11,11 +11,17 @@ namespace Gameplay
     {
         private readonly MergeService _mergeService;
         private readonly CubeConfig _cubeConfig;
+        private readonly ScoreService _scoreService;
 
-        public AutoMergeService(MergeService mergeService, CubeConfig cubeConfig)
+
+        public AutoMergeService(
+            MergeService mergeService,
+            CubeConfig cubeConfig, 
+            ScoreService scoreService)
         {
             _mergeService = mergeService;
             _cubeConfig = cubeConfig;
+            _scoreService = scoreService;
         }
 
         public bool TryFindMergePair(out CubeView a, out CubeView b, CubeView exclude = null)
@@ -71,6 +77,7 @@ namespace Gameplay
             UnityEngine.Object.Destroy(b.gameObject);
 
             a.Init(newValue, _cubeConfig);
+            _scoreService.AddScore(newValue);
             a.PlayMergeAnimation();
             a.SetKinematic(false);
 

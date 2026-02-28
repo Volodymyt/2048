@@ -12,6 +12,8 @@ namespace Services
         public void UnregisterCube(CubeView cube) => _cubesOnField.Remove(cube);
         
         public IReadOnlyList<CubeView> Cubes => _cubesOnField;
+        
+        public void Clear() => _cubesOnField.Clear();
 
         public bool TryMerge(CubeView a, CubeView b, out CubeView result)
         {
