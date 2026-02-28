@@ -1,4 +1,5 @@
 using Cubes.Merge;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -24,7 +25,11 @@ namespace Gameplay.Cube
             _cubeConfig = cubeConfig;
         }
         
-        private void Awake() => _rb = GetComponent<Rigidbody>();
+        private void Awake()
+        {
+            _rb = GetComponent<Rigidbody>();
+            _rb.sleepThreshold = 0f;
+        }
 
         public void Init(int value, CubeConfig config)
         {
@@ -35,6 +40,8 @@ namespace Gameplay.Cube
         }
 
         public void Launch(Vector3 force) => _rb.AddForce(force, ForceMode.Impulse);
+        
+        public void WakeUp() => _rb.WakeUp();
 
         private void SetMerging(bool state)
         {
@@ -42,33 +49,47 @@ namespace Gameplay.Cube
             _rb.isKinematic = state;
         }
         
+        public void PlayMergeAnimation()
+        {
+            transform.DOKill();
+            transform.DOPunchScale(Vector3.one * 0.3f, 0.3f, 5, 0.5f);
+            _rb.AddForce(Vector3.up * _cubeConfig.MergeJumpForce, ForceMode.Impulse);
+        }
+        
         private void OnCollisionEnter(Collision collision)
         {
-            if (IsMerging) return; 
+            if (IsMerging) return;
             if (!collision.gameObject.TryGetComponent<CubeView>(out var other)) return;
+            if (other.IsMerging) return;
+            if (other.Value != Value) return;
 
-            float impulse = collision.impulse.magnitude;
-            if (impulse < _cubeConfig.MinMergeImpulse) return;
-
-            Vector3 directionToOther = (other.transform.position - transform.position).normalized;
-            float dot = Vector3.Dot(collision.impulse.normalized, directionToOther);
-            if (dot < 0.3f) return;
+            float relativeVelocity = collision.relativeVelocity.magnitude;
+            if (relativeVelocity < _cubeConfig.MinMergeVelocity) return;
 
             if (_mergeService.TryMerge(this, other, out var survivor))
-            {
-                survivor.SetMerging(true);
-                other.SetMerging(true);
+                survivor.MergeWith(this == survivor ? other : this);
+        }
+        
+        public void MergeWith(CubeView other)
+        {
+            if (IsMerging || other.IsMerging) return;
+    
+            SetMerging(true);
+            other.SetMerging(true);
 
-                int newValue = survivor.Value * 2;
-                survivor.Init(newValue, _cubeConfig);
-    
-                Vector3 mergeImpulseDir = (survivor.transform.position - other.transform.position).normalized;
-                survivor.SetMerging(false);
-                survivor.Launch((mergeImpulseDir * _cubeConfig.MergeImpulseForce) / 10);
-    
-                _mergeService.UnregisterCube(other);
-                Object.Destroy(other.gameObject);
-            }
+            int newValue = Value * 2;
+            Init(newValue, _cubeConfig);
+
+            Vector3 mergeImpulseDir = (transform.position - other.transform.position).normalized;
+            SetMerging(false);
+            other.SetMerging(false);
+            PlayMergeAnimation();
+            Launch(mergeImpulseDir * _cubeConfig.MergeImpulseForce / 10);
+
+            _mergeService.UnregisterCube(other);
+            Destroy(other.gameObject);
+            _mergeService.WakeUpAll();
+            _mergeService.CheckNeighboursAfterMerge(this);
         }
     }
 }

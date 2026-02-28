@@ -11,24 +11,26 @@ namespace Gameplay
     {
         private readonly InputService _inputService;
         private readonly MergeService _mergeService;
+        private readonly CubeConfig _cubeConfig;
         
         private CubeSpawner _cubeSpawner;
         private CubeView _currentCube;
 
         private float _dragSensitivity = 0.01f;
         private float _boardHalfWidth = 2.478f;
-        private float _launchForce = 30;
 
         private Vector3 _spawnPoint = new Vector3(0,-2.288f,-22.27f);
 
         public GameMediator(
             CubeSpawner spawner,
             InputService inputService,
-            MergeService mergeService)
+            MergeService mergeService,
+            CubeConfig cubeConfig)
         {
             _cubeSpawner = spawner;
             _inputService = inputService;
             _mergeService = mergeService;
+            _cubeConfig = cubeConfig;
         }
         
         public void Construct()
@@ -55,7 +57,7 @@ namespace Gameplay
             if (_currentCube == null || !_canLaunch) return;
             _canLaunch = false;
     
-            _currentCube.Launch(Vector3.forward * _launchForce);
+            _currentCube.Launch(Vector3.forward * _cubeConfig.LaunchForce);
             _currentCube = null;
     
             await UniTask.Delay(TimeSpan.FromSeconds(1f));

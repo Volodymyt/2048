@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Gameplay.Cube;
+using UnityEngine;
 
 namespace Cubes.Merge
 {
@@ -19,6 +20,30 @@ namespace Cubes.Merge
 
             result = a;
             return true;
+        }
+        
+        public void WakeUpAll()
+        {
+            foreach (var cube in _cubesOnField)
+                cube.WakeUp();
+        }
+        
+        public void CheckNeighboursAfterMerge(CubeView newCube)
+        {
+            for (int i = _cubesOnField.Count - 1; i >= 0; i--)
+            {
+                var cube = _cubesOnField[i];
+                if (cube == newCube) continue;
+                if (cube.IsMerging) continue;
+                if (cube.Value != newCube.Value) continue;
+
+                float distance = Vector3.Distance(cube.transform.position, newCube.transform.position);
+                if (distance < 1.1f)
+                {
+                    newCube.MergeWith(cube);
+                    return;
+                }
+            }
         }
     }
 }
