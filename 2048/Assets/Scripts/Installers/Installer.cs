@@ -1,4 +1,3 @@
-using Cubes.Merge;
 using Gameplay;
 using Gameplay.Cube;
 using Services;
@@ -29,6 +28,7 @@ namespace Installers
 
         private void BindGameplay()
         {
+            Container.Bind<GenericFactory>().AsSingle();
             Container.Bind<GameMediator>().AsSingle();
             Container.Bind<CubeSpawner>().AsSingle();
             Container.Bind<CubeConfig>().FromScriptableObject(_cubeConfig).AsSingle();
@@ -39,6 +39,7 @@ namespace Installers
             Container.Bind<IAssetProviderService>().To<AssetProviderService>().AsSingle();
             Container.BindInterfacesAndSelfTo<InputService>().AsSingle();
             Container.Bind<MergeService>().AsSingle();
+            Container.Bind<ScoreService>().AsSingle();
         }
     }
 }

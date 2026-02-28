@@ -1,8 +1,8 @@
 using System;
-using Cubes.Merge;
 using Cysharp.Threading.Tasks;
 using Gameplay.Cube;
 using Services;
+using TMPro;
 using UnityEngine;
 
 namespace Gameplay
@@ -12,9 +12,12 @@ namespace Gameplay
         private readonly InputService _inputService;
         private readonly MergeService _mergeService;
         private readonly CubeConfig _cubeConfig;
+        private readonly GenericFactory _genericFactory;
+        private readonly ScoreService _scoreService;
         
         private CubeSpawner _cubeSpawner;
         private CubeView _currentCube;
+        private ScoreView _scoreView;
 
         private float _dragSensitivity = 0.01f;
         private float _boardHalfWidth = 2.478f;
@@ -25,12 +28,16 @@ namespace Gameplay
             CubeSpawner spawner,
             InputService inputService,
             MergeService mergeService,
-            CubeConfig cubeConfig)
+            CubeConfig cubeConfig,
+            GenericFactory genericFactory,
+            ScoreService scoreService)
         {
             _cubeSpawner = spawner;
             _inputService = inputService;
             _mergeService = mergeService;
             _cubeConfig = cubeConfig;
+            _genericFactory = genericFactory;
+            _scoreService = scoreService;
         }
         
         public void Construct()
@@ -39,6 +46,9 @@ namespace Gameplay
             _inputService.OnFingerUp += () => LaunchCube().Forget();
             _cubeSpawner.Initialize();
             SpawnNextCube();
+            
+            _scoreView = _genericFactory.Create<ScoreView>(Constants.ScoreViewPath);
+            _scoreService.OnScoreChanged += _scoreView.UpdateScore;
         }
 
         private void MoveCube(float delta)
@@ -74,7 +84,7 @@ namespace Gameplay
 
         public void Dispose()
         {
-            
+            _scoreService.OnScoreChanged -= _scoreView.UpdateScore;
         }
     }
 }

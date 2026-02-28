@@ -1,5 +1,5 @@
-using Cubes.Merge;
 using DG.Tweening;
+using Services;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -11,18 +11,24 @@ namespace Gameplay.Cube
         [SerializeField] private TMP_Text _label;
         [SerializeField] private MeshRenderer _renderer;
         
+        private MergeService _mergeService;
+        private CubeConfig _cubeConfig;
+        private ScoreService _scoreService;
+        
         public int Value { get; private set; }
         public bool IsMerging { get; private set; }
         
         private Rigidbody _rb;
-        private MergeService _mergeService;
-        private CubeConfig _cubeConfig;
 
         [Inject]
-        public void Construct(MergeService mergeService, CubeConfig cubeConfig)
+        public void Construct(
+            MergeService mergeService, 
+            CubeConfig cubeConfig, 
+            ScoreService scoreService)
         {
             _mergeService = mergeService;
             _cubeConfig = cubeConfig;
+            _scoreService = scoreService;
         }
         
         private void Awake()
@@ -90,6 +96,7 @@ namespace Gameplay.Cube
             Destroy(other.gameObject);
             _mergeService.WakeUpAll();
             _mergeService.CheckNeighboursAfterMerge(this);
+            _scoreService.AddScore(newValue);
         }
     }
 }

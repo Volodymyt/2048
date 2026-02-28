@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Gameplay.Cube;
 using UnityEngine;
 
-namespace Cubes.Merge
+namespace Services
 {
     public class MergeService
     {
