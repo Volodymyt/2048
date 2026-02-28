@@ -14,12 +14,14 @@ namespace Gameplay
         private readonly CubeConfig _cubeConfig;
         private readonly GenericFactory _genericFactory;
         private readonly ScoreService _scoreService;
+        private readonly AutoMergeService _autoMergeService;
 
         private CubeSpawner _cubeSpawner;
         private CubeView _currentCube;
         private ScoreView _scoreView;
         private GameOverTriggerView _deadLine;
         private GameOverView _gameOverView;
+        private AutoMergeButtonView _autoMergeButton;
 
         private float _dragSensitivity = 0.01f;
         private float _boardHalfWidth = 2.478f;
@@ -32,7 +34,8 @@ namespace Gameplay
             MergeService mergeService,
             CubeConfig cubeConfig,
             GenericFactory genericFactory,
-            ScoreService scoreService)
+            ScoreService scoreService,
+            AutoMergeService autoMergeService)
         {
             _cubeSpawner = spawner;
             _inputService = inputService;
@@ -40,6 +43,7 @@ namespace Gameplay
             _cubeConfig = cubeConfig;
             _genericFactory = genericFactory;
             _scoreService = scoreService;
+            _autoMergeService = autoMergeService;
         }
         
         public void Construct()
@@ -57,14 +61,27 @@ namespace Gameplay
             _gameOverView = _genericFactory.Create<GameOverView>(Constants.GameOverViewPath);
             _gameOverView.RestartButton.onClick.AddListener(Restart);
             _gameOverView.Hide();
+            
+            _autoMergeButton = _genericFactory.Create<AutoMergeButtonView>(Constants.AutoMergeButtonPath);
+            _autoMergeButton.OnClick(() => OnAutoMergeClicked().Forget());
         }
 
+        private async UniTaskVoid OnAutoMergeClicked()
+        {
+            if (!_autoMergeService.TryFindMergePair(out var a, out var b, _currentCube)) return;
+
+            _autoMergeButton.SetInteractable(false);
+            _canLaunch = false;
+
+            await _autoMergeService.ExecuteAsync(a, b);
+
+            _canLaunch = true;
+            _autoMergeButton.SetInteractable(true);
+        }
+        
         private void Restart()
         {
             _scoreService.Reset();
-            // перезавантажити сцену
-            UnityEngine.SceneManagement.SceneManager.LoadScene(
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
         }
         
         private void MoveCube(float delta)

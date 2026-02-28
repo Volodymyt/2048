@@ -40,6 +40,7 @@ namespace Installers
             Container.BindInterfacesAndSelfTo<InputService>().AsSingle();
             Container.Bind<MergeService>().AsSingle();
             Container.Bind<ScoreService>().AsSingle();
+            Container.Bind<AutoMergeService>().AsSingle();
         }
     }
 }

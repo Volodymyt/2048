@@ -5,4 +5,5 @@ public class Constants
     public const string ScoreViewPath = "ScoreView";
     public const string DeadLinePath = "DeadLineView";
     public const string GameOverViewPath = "GameOverView";
+    public const string AutoMergeButtonPath = "AutoMergeButton";
 }

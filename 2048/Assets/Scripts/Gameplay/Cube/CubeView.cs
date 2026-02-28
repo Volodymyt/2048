@@ -48,6 +48,8 @@ namespace Gameplay.Cube
         public void Launch(Vector3 force) => _rb.AddForce(force, ForceMode.Impulse);
         
         public void WakeUp() => _rb.WakeUp();
+        
+        public void SetKinematic(bool state) => _rb.isKinematic = state;
 
         private void SetMerging(bool state)
         {
