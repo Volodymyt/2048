@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9e696b5bbcb4f7687d188b764acd6e5, type: 3}
   m_Name: CubeConfig
   m_EditorClassIdentifier: 
-  <LaunchForce>k__BackingField: 10
-  <MinMergeImpulse>k__BackingField: 2
-  <ChainImpulseForce>k__BackingField: 3
+  <LaunchForce>k__BackingField: 30
+  <MergeImpulseForce>k__BackingField: 5
+  <MergeJumpForce>k__BackingField: 5.5
+  <MinMergeVelocity>k__BackingField: 0.5
   <PowerOfTwoColors>k__BackingField:
   - {r: 0.7433963, g: 0.34809548, b: 0.2005767, a: 0}
   - {r: 0.735849, g: 0.50745004, b: 0.16521885, a: 0}

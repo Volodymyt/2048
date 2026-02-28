@@ -14,10 +14,12 @@ namespace Gameplay
         private readonly CubeConfig _cubeConfig;
         private readonly GenericFactory _genericFactory;
         private readonly ScoreService _scoreService;
-        
+
         private CubeSpawner _cubeSpawner;
         private CubeView _currentCube;
         private ScoreView _scoreView;
+        private GameOverTriggerView _deadLine;
+        private GameOverView _gameOverView;
 
         private float _dragSensitivity = 0.01f;
         private float _boardHalfWidth = 2.478f;
@@ -49,8 +51,22 @@ namespace Gameplay
             
             _scoreView = _genericFactory.Create<ScoreView>(Constants.ScoreViewPath);
             _scoreService.OnScoreChanged += _scoreView.UpdateScore;
+            
+            _deadLine = _genericFactory.Create<GameOverTriggerView>(Constants.DeadLinePath);
+            _deadLine.OnGameOver += HandleGameOver;
+            _gameOverView = _genericFactory.Create<GameOverView>(Constants.GameOverViewPath);
+            _gameOverView.RestartButton.onClick.AddListener(Restart);
+            _gameOverView.Hide();
         }
 
+        private void Restart()
+        {
+            _scoreService.Reset();
+            // перезавантажити сцену
+            UnityEngine.SceneManagement.SceneManager.LoadScene(
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        }
+        
         private void MoveCube(float delta)
         {
             if (_currentCube == null) return;
@@ -62,6 +78,14 @@ namespace Gameplay
 
         private bool _canLaunch = true;
 
+        private void HandleGameOver()
+        {
+            _canLaunch = false;
+            _inputService.OnFingerDrag -= MoveCube;
+            _gameOverView.Show(_scoreService.Score);
+
+        }
+        
         private async UniTaskVoid LaunchCube()
         {
             if (_currentCube == null || !_canLaunch) return;
@@ -84,6 +108,7 @@ namespace Gameplay
 
         public void Dispose()
         {
+            _deadLine.OnGameOver -= HandleGameOver;
             _scoreService.OnScoreChanged -= _scoreView.UpdateScore;
         }
     }
