@@ -10,10 +10,14 @@ namespace Gameplay.Cube
     {
         [SerializeField] private TMP_Text _label;
         [SerializeField] private MeshRenderer _renderer;
+
         
+        private IAssetProviderService _assetProviderService;
         private MergeService _mergeService;
         private CubeConfig _cubeConfig;
         private ScoreService _scoreService;
+        private ParticleSystem _mergeParticles;
+        private CameraShakeService _cameraShakeService;
         
         public int Value { get; private set; }
         public bool IsMerging { get; private set; }
@@ -24,11 +28,21 @@ namespace Gameplay.Cube
         public void Construct(
             MergeService mergeService, 
             CubeConfig cubeConfig, 
-            ScoreService scoreService)
+            ScoreService scoreService,
+            IAssetProviderService assetProviderService,
+            CameraShakeService cameraShakeService)
         {
             _mergeService = mergeService;
             _cubeConfig = cubeConfig;
             _scoreService = scoreService;
+            _assetProviderService = assetProviderService;
+            _cameraShakeService = cameraShakeService;
+            
+            var particles = _assetProviderService.LoadAssetFromResources<ParticleSystem>("MergeParticlesView");
+            _mergeParticles = Instantiate(particles, transform.position, Quaternion.identity);
+            _mergeParticles.Stop();
+            
+            _cameraShakeService.Initialize();
         }
         
         private void Awake()
@@ -62,6 +76,10 @@ namespace Gameplay.Cube
             transform.DOKill();
             transform.DOPunchScale(Vector3.one * 0.3f, 0.3f, 5, 0.5f);
             _rb.AddForce(Vector3.up * _cubeConfig.MergeJumpForce, ForceMode.Impulse);
+            
+            _mergeParticles.transform.position = transform.position;
+            _mergeParticles.Play();
+            _cameraShakeService.Shake().Forget();
         }
         
         private void OnCollisionEnter(Collision collision)

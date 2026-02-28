@@ -32,6 +32,7 @@ namespace Installers
             Container.Bind<GameMediator>().AsSingle();
             Container.Bind<CubeSpawner>().AsSingle();
             Container.Bind<CubeConfig>().FromScriptableObject(_cubeConfig).AsSingle();
+            
         }
         
         private void BindServices()
@@ -41,6 +42,7 @@ namespace Installers
             Container.Bind<MergeService>().AsSingle();
             Container.Bind<ScoreService>().AsSingle();
             Container.Bind<AutoMergeService>().AsSingle();
+            Container.Bind<CameraShakeService>().AsSingle();
         }
     }
 }
