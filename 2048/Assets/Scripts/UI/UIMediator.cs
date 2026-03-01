@@ -1,6 +1,7 @@
 using System;
 using Gameplay;
 using Services;
+using UnityEngine;
 
 namespace UI
 {
@@ -9,6 +10,7 @@ namespace UI
         private readonly GenericFactory _genericFactory;
         private readonly GameMediator _gameMediator;
 
+        private Canvas _mainCanvas;
         private ScoreView _scoreView;
         private DeadLineView _deadLine;
         private GameOverView _gameOverView;
@@ -24,15 +26,17 @@ namespace UI
 
         public void Construct()
         {
-            _scoreView = _genericFactory.Create<ScoreView>(Constants.ScoreViewPath);
+            _mainCanvas = _genericFactory.Create<Canvas>(Constants.MainCanvasView);
+            
+            _scoreView = _genericFactory.Create<ScoreView>(Constants.ScoreViewPath, _mainCanvas.transform);
 
             _deadLine = _genericFactory.Create<DeadLineView>(Constants.DeadLinePath);
 
-            _gameOverView = _genericFactory.Create<GameOverView>(Constants.GameOverViewPath);
+            _gameOverView = _genericFactory.Create<GameOverView>(Constants.GameOverViewPath, _mainCanvas.transform);
             _gameOverView.RestartButton.onClick.AddListener(OnRestartClicked);
             _gameOverView.Hide();
 
-            _autoMergeButton = _genericFactory.Create<AutoMergeButtonView>(Constants.AutoMergeButtonPath);
+            _autoMergeButton = _genericFactory.Create<AutoMergeButtonView>(Constants.AutoMergeButtonPath, _mainCanvas.transform);
             _autoMergeButton.OnClick(() =>
                 _gameMediator.TryExecuteAutoMergeAsync(
                     onStarted: () => _autoMergeButton.SetInteractable(false),
