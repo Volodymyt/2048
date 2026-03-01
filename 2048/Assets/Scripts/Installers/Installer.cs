@@ -3,6 +3,7 @@ using Gameplay.Cube;
 using Services;
 using StateMachine.Global;
 using StateMachine.Global.States;
+using UI;
 using UnityEngine;
 using Zenject;
 
@@ -17,6 +18,7 @@ namespace Installers
             BindGlobalStateMachine();
             BindGameplay();
             BindServices();
+            BindUI();
         }
 
         private void BindGlobalStateMachine()
@@ -28,21 +30,26 @@ namespace Installers
 
         private void BindGameplay()
         {
-            Container.Bind<GenericFactory>().AsSingle();
             Container.Bind<GameMediator>().AsSingle();
             Container.Bind<CubeSpawner>().AsSingle();
             Container.Bind<CubeConfig>().FromScriptableObject(_cubeConfig).AsSingle();
-            
+            Container.Bind<CameraShake>().AsSingle();
+            Container.Bind<MergeSystem>().AsSingle();
+            Container.Bind<ScoreSystem>().AsSingle();
+            Container.Bind<AutoMerge>().AsSingle();
+        }
+
+        private void BindUI()
+        {
+            Container.Bind<UIMediator>().AsSingle();
         }
         
         private void BindServices()
         {
             Container.Bind<IAssetProviderService>().To<AssetProviderService>().AsSingle();
             Container.BindInterfacesAndSelfTo<InputService>().AsSingle();
-            Container.Bind<MergeSystem>().AsSingle();
-            Container.Bind<ScoreSystem>().AsSingle();
-            Container.Bind<AutoMerge>().AsSingle();
-            Container.Bind<CameraShake>().AsSingle();
+            Container.Bind<GenericFactory>().AsSingle();
+
         }
     }
 }
