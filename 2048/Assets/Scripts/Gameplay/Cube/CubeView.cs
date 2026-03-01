@@ -83,6 +83,7 @@ namespace Gameplay.Cube
             transform.DOKill();
             transform.DOPunchScale(Vector3.one * 0.3f, 0.3f, 5, 0.5f)
                 .OnComplete(() => transform.localScale = Vector3.one);
+            
             _collider.enabled = false;
             _rb.AddForce(Vector3.up * _cubeConfig.MergeJumpForce, ForceMode.Impulse);
             
@@ -90,7 +91,13 @@ namespace Gameplay.Cube
             _mergeParticles.Play();
             _cameraShake.Shake().Forget();
             
-            DOVirtual.DelayedCall(0.4f, () => _collider.enabled = true);
+            DOVirtual.DelayedCall(_mergeParticles.main.duration, () =>
+            {
+                _collider.enabled = true;
+                
+                if (_mergeParticles != null) 
+                    Destroy(_mergeParticles.gameObject);
+            });
         }
         
         private void OnCollisionEnter(Collision collision)
