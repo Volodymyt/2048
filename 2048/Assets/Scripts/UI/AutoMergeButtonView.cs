@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Gameplay
+namespace UI
 {
     public class AutoMergeButtonView : MonoBehaviour
     {

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using Gameplay.Configs;
 using Gameplay.Cube;
 using Services;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace Gameplay
         private readonly InputService _inputService;
         private readonly MergeSystem _mergeSystem;
         private readonly CubeConfig _cubeConfig;
+        private readonly BoardConfig _boardConfig;
         private readonly ScoreSystem _scoreSystem;
         private readonly AutoMerge _autoMerge;
         private readonly CubeSpawner _cubeSpawner;
@@ -20,10 +22,8 @@ namespace Gameplay
         private CubeView _currentCube;
         private bool _canLaunch = true;
 
-        private readonly float _dragSensitivity = 0.01f;
-        private readonly float _boardHalfWidth = 2.5f;
-        private readonly Vector3 _spawnPoint = new Vector3(0, -2.288f, -22.27f);
         private Action _onFingerUp;
+        
         public event Action<int> OnGameOver;
         public event Action<int> OnScoreChanged
         {
@@ -36,6 +36,7 @@ namespace Gameplay
             InputService inputService,
             MergeSystem mergeSystem,
             CubeConfig cubeConfig,
+            BoardConfig boardConfig,
             ScoreSystem scoreSystem,
             AutoMerge autoMerge)
         {
@@ -43,6 +44,7 @@ namespace Gameplay
             _inputService = inputService;
             _mergeSystem = mergeSystem;
             _cubeConfig = cubeConfig;
+            _boardConfig = boardConfig;
             _scoreSystem = scoreSystem;
             _autoMerge = autoMerge;
         }
@@ -109,7 +111,7 @@ namespace Gameplay
             if (_currentCube == null) return;
             
             Vector3 pos = _currentCube.transform.position;
-            pos.x = Mathf.Clamp(pos.x + delta * _dragSensitivity, -_boardHalfWidth, _boardHalfWidth);
+            pos.x = Mathf.Clamp(pos.x + delta * _cubeConfig.DragSensitivity, -_boardConfig.BoardHalfWidth, _boardConfig.BoardHalfWidth);
             _currentCube.transform.position = pos;
         }
 
@@ -129,7 +131,7 @@ namespace Gameplay
 
         private void SpawnNextCube()
         {
-            _currentCube = _cubeSpawner.SpawnCube(_spawnPoint);
+            _currentCube = _cubeSpawner.SpawnCube(_boardConfig.SpawnPoint);
             _mergeSystem.RegisterCube(_currentCube);
         }
 

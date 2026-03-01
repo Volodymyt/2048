@@ -1,8 +1,8 @@
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Gameplay.Configs;
 using Gameplay.Cube;
-using Services;
 using UnityEngine;
 
 namespace Gameplay
@@ -56,25 +56,25 @@ namespace Gameplay
             Vector3 bMid = b.transform.position + Vector3.up * riseHeight;
 
             await UniTask.WhenAll(
-                DOTweenToUniTask(a.transform.DOMove(aMid, duration)),
-                DOTweenToUniTask(b.transform.DOMove(bMid, duration))
+                DoTweenToUniTask(a.transform.DOMove(aMid, duration)),
+                DoTweenToUniTask(b.transform.DOMove(bMid, duration))
             );
 
             Vector3 dir = (bMid - aMid).normalized;
             await UniTask.WhenAll(
-                DOTweenToUniTask(a.transform.DOMove(aMid - dir * swingBack, duration * 0.5f)),
-                DOTweenToUniTask(b.transform.DOMove(bMid + dir * swingBack, duration * 0.5f))
+                DoTweenToUniTask(a.transform.DOMove(aMid - dir * swingBack, duration * 0.5f)),
+                DoTweenToUniTask(b.transform.DOMove(bMid + dir * swingBack, duration * 0.5f))
             );
 
             Vector3 mergePoint = (aMid + bMid) / 2f;
             await UniTask.WhenAll(
-                DOTweenToUniTask(a.transform.DOMove(mergePoint, duration)),
-                DOTweenToUniTask(b.transform.DOMove(mergePoint, duration))
+                DoTweenToUniTask(a.transform.DOMove(mergePoint, duration)),
+                DoTweenToUniTask(b.transform.DOMove(mergePoint, duration))
             );
 
             int newValue = a.Value * 2;
             _mergeSystem.UnregisterCube(b);
-            UnityEngine.Object.Destroy(b.gameObject);
+            Object.Destroy(b.gameObject);
 
             a.Init(newValue, _cubeConfig);
             _scoreSystem.AddScore(newValue);
@@ -84,7 +84,7 @@ namespace Gameplay
             _mergeSystem.WakeUpAll();
         }
 
-        private static UniTask DOTweenToUniTask(Tween tween)
+        private static UniTask DoTweenToUniTask(Tween tween)
         {
             var utcs = new UniTaskCompletionSource();
             tween.OnComplete(() => utcs.TrySetResult());

@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Gameplay.Configs;
 using Services;
 using TMPro;
 using UnityEngine;
@@ -8,8 +9,8 @@ namespace Gameplay.Cube
 {
     public class CubeView : MonoBehaviour
     {
-        [SerializeField] private TMP_Text[] _labels;
-        [SerializeField] private MeshRenderer _renderer;
+        [SerializeField] private TMP_Text[] labels;
+        [SerializeField] private MeshRenderer meshRenderer;
 
         
         private IAssetProviderService _assetProviderService;
@@ -40,7 +41,7 @@ namespace Gameplay.Cube
             _assetProviderService = assetProviderService;
             _cameraShake = cameraShake;
             
-            var particles = _assetProviderService.LoadAssetFromResources<ParticleSystem>("MergeParticlesView");
+            var particles = _assetProviderService.LoadAssetFromResources<ParticleSystem>(Constants.MergeParticlesView);
             _mergeParticles = Instantiate(particles, transform.position, Quaternion.identity);
             _mergeParticles.Stop();
             
@@ -58,11 +59,11 @@ namespace Gameplay.Cube
         public void Init(int value, CubeConfig config)
         {
             Value = value;
-            foreach (var label in _labels)
+            foreach (var label in labels)
                 label.text = value.ToString();
             
             int colorIndex = Mathf.Clamp((int)Mathf.Log(value, 2) - 1, 0, config.PowerOfTwoColors.Length - 1);
-            _renderer.material.color = config.PowerOfTwoColors[colorIndex];
+            meshRenderer.material.color = config.PowerOfTwoColors[colorIndex];
         }
 
         public void Launch(Vector3 force) => _rb.AddForce(force, ForceMode.Impulse);
@@ -94,13 +95,14 @@ namespace Gameplay.Cube
         
         private void OnCollisionEnter(Collision collision)
         {
-            if (IsMerging) return;
             if (!collision.gameObject.TryGetComponent<CubeView>(out var other)) return;
-            if (other.IsMerging) return;
-            if (other.Value != Value) return;
 
-            float relativeVelocity = collision.relativeVelocity.magnitude;
-            if (relativeVelocity < _cubeConfig.MinMergeVelocity) return;
+            bool canMerge = !IsMerging
+                            && !other.IsMerging
+                            && other.Value == Value
+                            && collision.relativeVelocity.magnitude >= _cubeConfig.MinMergeVelocity;
+
+            if (!canMerge) return;
 
             if (_mergeSystem.TryMerge(this, other, out var survivor))
                 survivor.MergeWith(this == survivor ? other : this);
@@ -109,24 +111,35 @@ namespace Gameplay.Cube
         public void MergeWith(CubeView other)
         {
             if (IsMerging || other.IsMerging) return;
-    
+
+            ApplyMerge(other);
+            DestroyMerged(other);
+        }
+
+        private void ApplyMerge(CubeView other)
+        {
             SetMerging(true);
             other.SetMerging(true);
 
             int newValue = Value * 2;
             Init(newValue, _cubeConfig);
 
-            Vector3 mergeImpulseDir = (transform.position - other.transform.position).normalized;
+            Vector3 impulseDir = (transform.position - other.transform.position).normalized;
+
             SetMerging(false);
             other.SetMerging(false);
-            PlayMergeAnimation();
-            Launch(mergeImpulseDir * _cubeConfig.MergeImpulseForce / 10);
 
+            PlayMergeAnimation();
+            Launch(impulseDir * (_cubeConfig.MergeImpulseForce / 10));
+            _scoreSystem.AddScore(newValue);
+        }
+
+        private void DestroyMerged(CubeView other)
+        {
             _mergeSystem.UnregisterCube(other);
             Destroy(other.gameObject);
             _mergeSystem.WakeUpAll();
             _mergeSystem.CheckNeighboursAfterMerge(this);
-            _scoreSystem.AddScore(newValue);
         }
     }
 }

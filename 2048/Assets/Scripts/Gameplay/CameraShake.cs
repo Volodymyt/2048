@@ -9,7 +9,7 @@ public class CameraShake
     public void Initialize()
     {
         _camera = Camera.main;
-        _originalPosition = _camera.transform.position;
+        if (_camera != null) _originalPosition = _camera.transform.position;
     }
 
     public async UniTaskVoid Shake(float duration = 0.2f, float magnitude = 0.1f)

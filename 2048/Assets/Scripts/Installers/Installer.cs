@@ -1,4 +1,5 @@
 using Gameplay;
+using Gameplay.Configs;
 using Gameplay.Cube;
 using Services;
 using StateMachine.Global;
@@ -11,7 +12,8 @@ namespace Installers
 {
     public class Installer : MonoInstaller
     {
-        [SerializeField] private CubeConfig _cubeConfig;
+        [SerializeField] private CubeConfig cubeConfig;
+        [SerializeField] private BoardConfig boardConfig;
         
         public override void InstallBindings()
         {
@@ -32,7 +34,8 @@ namespace Installers
         {
             Container.Bind<GameMediator>().AsSingle();
             Container.Bind<CubeSpawner>().AsSingle();
-            Container.Bind<CubeConfig>().FromScriptableObject(_cubeConfig).AsSingle();
+            Container.Bind<CubeConfig>().FromScriptableObject(cubeConfig).AsSingle();
+            Container.Bind<BoardConfig>().FromScriptableObject(boardConfig).AsSingle();
             Container.Bind<CameraShake>().AsSingle();
             Container.Bind<MergeSystem>().AsSingle();
             Container.Bind<ScoreSystem>().AsSingle();

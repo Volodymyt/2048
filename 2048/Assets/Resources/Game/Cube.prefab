@@ -910,14 +910,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 096a3849dff846869324ec1c523dc9cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _labels:
+  labels:
   - {fileID: 6654590714041012108}
   - {fileID: 4984089820994327273}
   - {fileID: 4441900161073086152}
   - {fileID: 838092884177609180}
   - {fileID: 8743319304384805549}
   - {fileID: 4160883315970305983}
-  _renderer: {fileID: 3047286132138504557}
+  meshRenderer: {fileID: 3047286132138504557}
 --- !u!54 &6726042828442461924
 Rigidbody:
   m_ObjectHideFlags: 0

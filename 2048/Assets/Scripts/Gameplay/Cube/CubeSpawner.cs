@@ -1,3 +1,4 @@
+using Gameplay.Configs;
 using Services;
 using UnityEngine;
 using Zenject;

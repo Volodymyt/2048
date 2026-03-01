@@ -74,4 +74,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aaf65e2533084b818c7071f12122a23c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cubeConfig: {fileID: 11400000, guid: 22617c2075eabbd45a21f4db6c161aa7, type: 2}
+  cubeConfig: {fileID: 11400000, guid: 22617c2075eabbd45a21f4db6c161aa7, type: 2}
+  boardConfig: {fileID: 11400000, guid: d3c3177302913b14c82c3518420f3f17, type: 2}

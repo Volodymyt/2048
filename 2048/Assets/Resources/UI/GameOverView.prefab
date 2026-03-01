@@ -874,5 +874,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 142cfd06408e48a58e37f4f782d10ea4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _finalScoreLabel: {fileID: 6925304424731389327}
-  _restartButton: {fileID: 3310556268067653370}
+  finalScoreLabel: {fileID: 6925304424731389327}
+  restartButton: {fileID: 3310556268067653370}

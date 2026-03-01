@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Gameplay.Cube;
 using UnityEngine;
 
-namespace Services
+namespace Gameplay
 {
     public class MergeSystem
     {
@@ -10,11 +10,10 @@ namespace Services
 
         public void RegisterCube(CubeView cube) => _cubesOnField.Add(cube);
         public void UnregisterCube(CubeView cube) => _cubesOnField.Remove(cube);
+        public void Clear() => _cubesOnField.Clear();
         
         public IReadOnlyList<CubeView> Cubes => _cubesOnField;
         
-        public void Clear() => _cubesOnField.Clear();
-
         public bool TryMerge(CubeView a, CubeView b, out CubeView result)
         {
             result = null;
@@ -37,16 +36,16 @@ namespace Services
             for (int i = _cubesOnField.Count - 1; i >= 0; i--)
             {
                 var cube = _cubesOnField[i];
-                if (cube == newCube) continue;
-                if (cube.IsMerging) continue;
-                if (cube.Value != newCube.Value) continue;
 
-                float distance = Vector3.Distance(cube.transform.position, newCube.transform.position);
-                if (distance < 1.1f)
-                {
-                    newCube.MergeWith(cube);
-                    return;
-                }
+                bool canMerge = cube != newCube
+                                && !cube.IsMerging
+                                && cube.Value == newCube.Value
+                                && Vector3.Distance(cube.transform.position, newCube.transform.position) < 1.1f;
+
+                if (!canMerge) continue;
+
+                newCube.MergeWith(cube);
+                return;
             }
         }
     }

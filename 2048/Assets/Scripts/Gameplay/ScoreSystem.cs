@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Services
+namespace Gameplay
 {
     public class ScoreSystem
     {

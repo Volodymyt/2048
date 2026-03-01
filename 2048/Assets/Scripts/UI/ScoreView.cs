@@ -1,14 +1,12 @@
-using Services;
 using TMPro;
 using UnityEngine;
-using Zenject;
 
 namespace Gameplay
 {
     public class ScoreView : MonoBehaviour
     {
-        [SerializeField] private TMP_Text _scoreLabel;
+        [SerializeField] private TMP_Text scoreLabel;
 
-        public void UpdateScore(int score) => _scoreLabel.text = score.ToString();
+        public void UpdateScore(int score) => scoreLabel.text = score.ToString();
     }
 }
