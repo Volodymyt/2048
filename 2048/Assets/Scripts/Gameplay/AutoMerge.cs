@@ -7,27 +7,27 @@ using UnityEngine;
 
 namespace Gameplay
 {
-    public class AutoMergeService
+    public class AutoMerge
     {
-        private readonly MergeService _mergeService;
+        private readonly MergeSystem _mergeSystem;
         private readonly CubeConfig _cubeConfig;
-        private readonly ScoreService _scoreService;
+        private readonly ScoreSystem _scoreSystem;
 
 
-        public AutoMergeService(
-            MergeService mergeService,
+        public AutoMerge(
+            MergeSystem mergeSystem,
             CubeConfig cubeConfig, 
-            ScoreService scoreService)
+            ScoreSystem scoreSystem)
         {
-            _mergeService = mergeService;
+            _mergeSystem = mergeSystem;
             _cubeConfig = cubeConfig;
-            _scoreService = scoreService;
+            _scoreSystem = scoreSystem;
         }
 
         public bool TryFindMergePair(out CubeView a, out CubeView b, CubeView exclude = null)
         {
             a = b = null;
-            var cubes = _mergeService.Cubes
+            var cubes = _mergeSystem.Cubes
                 .Where(c => c != exclude)
                 .ToList();
 
@@ -73,15 +73,15 @@ namespace Gameplay
             );
 
             int newValue = a.Value * 2;
-            _mergeService.UnregisterCube(b);
+            _mergeSystem.UnregisterCube(b);
             UnityEngine.Object.Destroy(b.gameObject);
 
             a.Init(newValue, _cubeConfig);
-            _scoreService.AddScore(newValue);
+            _scoreSystem.AddScore(newValue);
             a.PlayMergeAnimation();
             a.SetKinematic(false);
 
-            _mergeService.WakeUpAll();
+            _mergeSystem.WakeUpAll();
         }
 
         private static UniTask DOTweenToUniTask(Tween tween)

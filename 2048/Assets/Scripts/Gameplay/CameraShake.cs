@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public class CameraShakeService
+public class CameraShake
 {
     private Camera _camera;
     private Vector3 _originalPosition;

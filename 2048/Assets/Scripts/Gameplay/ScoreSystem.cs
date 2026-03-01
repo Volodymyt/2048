@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Services
 {
-    public class ScoreService
+    public class ScoreSystem
     {
         public event Action<int> OnScoreChanged;
         

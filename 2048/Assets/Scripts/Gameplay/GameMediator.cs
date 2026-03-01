@@ -14,16 +14,16 @@ namespace Gameplay
     public class GameMediator : IDisposable
     {
         private readonly InputService _inputService;
-        private readonly MergeService _mergeService;
+        private readonly MergeSystem _mergeSystem;
         private readonly CubeConfig _cubeConfig;
         private readonly GenericFactory _genericFactory;
-        private readonly ScoreService _scoreService;
-        private readonly AutoMergeService _autoMergeService;
+        private readonly ScoreSystem _scoreSystem;
+        private readonly AutoMerge _autoMerge;
 
         private CubeSpawner _cubeSpawner;
         private CubeView _currentCube;
         private ScoreView _scoreView;
-        private GameOverTriggerView _deadLine;
+        private DeadLineView _deadLine;
         private GameOverView _gameOverView;
         private AutoMergeButtonView _autoMergeButton;
 
@@ -35,27 +35,27 @@ namespace Gameplay
         public GameMediator(
             CubeSpawner spawner,
             InputService inputService,
-            MergeService mergeService,
+            MergeSystem mergeSystem,
             CubeConfig cubeConfig,
             GenericFactory genericFactory,
-            ScoreService scoreService,
-            AutoMergeService autoMergeService)
+            ScoreSystem scoreSystem,
+            AutoMerge autoMerge)
         {
             _cubeSpawner = spawner;
             _inputService = inputService;
-            _mergeService = mergeService;
+            _mergeSystem = mergeSystem;
             _cubeConfig = cubeConfig;
             _genericFactory = genericFactory;
-            _scoreService = scoreService;
-            _autoMergeService = autoMergeService;
+            _scoreSystem = scoreSystem;
+            _autoMerge = autoMerge;
         }
         
         public void Construct()
         {
             
-            foreach (var cube in _mergeService.Cubes.ToList())
+            foreach (var cube in _mergeSystem.Cubes.ToList())
                 Object.Destroy(cube.gameObject);
-            _mergeService.Clear();
+            _mergeSystem.Clear();
             
             _inputService.OnFingerDrag += MoveCube;
             _inputService.OnFingerUp += () => LaunchCube().Forget();
@@ -63,9 +63,9 @@ namespace Gameplay
             SpawnNextCube();
             
             _scoreView = _genericFactory.Create<ScoreView>(Constants.ScoreViewPath);
-            _scoreService.OnScoreChanged += _scoreView.UpdateScore;
+            _scoreSystem.OnScoreChanged += _scoreView.UpdateScore;
             
-            _deadLine = _genericFactory.Create<GameOverTriggerView>(Constants.DeadLinePath);
+            _deadLine = _genericFactory.Create<DeadLineView>(Constants.DeadLinePath);
             _deadLine.OnGameOver += HandleGameOver;
             _gameOverView = _genericFactory.Create<GameOverView>(Constants.GameOverViewPath);
             _gameOverView.RestartButton.onClick.AddListener(Restart);
@@ -77,12 +77,12 @@ namespace Gameplay
 
         private async UniTaskVoid OnAutoMergeClicked()
         {
-            if (!_autoMergeService.TryFindMergePair(out var a, out var b, _currentCube)) return;
+            if (!_autoMerge.TryFindMergePair(out var a, out var b, _currentCube)) return;
 
             _autoMergeButton.SetInteractable(false);
             _canLaunch = false;
 
-            await _autoMergeService.ExecuteAsync(a, b);
+            await _autoMerge.ExecuteAsync(a, b);
 
             _canLaunch = true;
             _autoMergeButton.SetInteractable(true);
@@ -90,11 +90,11 @@ namespace Gameplay
         
         private void Restart()
         {
-            foreach (var cube in _mergeService.Cubes.ToList())
+            foreach (var cube in _mergeSystem.Cubes.ToList())
                 Object.Destroy(cube.gameObject);
     
-            _mergeService.Clear();
-            _scoreService.Reset();
+            _mergeSystem.Clear();
+            _scoreSystem.Reset();
             _gameOverView.Hide();
             _canLaunch = true;
     
@@ -120,7 +120,7 @@ namespace Gameplay
         {
             _canLaunch = false;
             _inputService.OnFingerDrag -= MoveCube;
-            _gameOverView.Show(_scoreService.Score);
+            _gameOverView.Show(_scoreSystem.Score);
 
         }
         
@@ -141,13 +141,13 @@ namespace Gameplay
         private void SpawnNextCube()
         {
             _currentCube = _cubeSpawner.SpawnCube(_spawnPoint);
-            _mergeService.RegisterCube(_currentCube);
+            _mergeSystem.RegisterCube(_currentCube);
         }
 
         public void Dispose()
         {
             _deadLine.OnGameOver -= HandleGameOver;
-            _scoreService.OnScoreChanged -= _scoreView.UpdateScore;
+            _scoreSystem.OnScoreChanged -= _scoreView.UpdateScore;
             _inputService.OnFingerDrag -= MoveCube;
             _inputService.OnFingerUp -= () => LaunchCube().Forget();
     

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Services
 {
-    public class MergeService
+    public class MergeSystem
     {
         private readonly List<CubeView> _cubesOnField = new();
 

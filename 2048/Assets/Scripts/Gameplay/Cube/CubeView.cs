@@ -13,10 +13,10 @@ namespace Gameplay.Cube
 
         
         private IAssetProviderService _assetProviderService;
-        private MergeService _mergeService;
+        private MergeSystem _mergeSystem;
         private CubeConfig _cubeConfig;
-        private ScoreService _scoreService;
-        private CameraShakeService _cameraShakeService;
+        private ScoreSystem _scoreSystem;
+        private CameraShake _cameraShake;
         
         private ParticleSystem _mergeParticles;
         private Collider _collider;
@@ -28,23 +28,23 @@ namespace Gameplay.Cube
 
         [Inject]
         public void Construct(
-            MergeService mergeService, 
+            MergeSystem mergeSystem, 
             CubeConfig cubeConfig, 
-            ScoreService scoreService,
+            ScoreSystem scoreSystem,
             IAssetProviderService assetProviderService,
-            CameraShakeService cameraShakeService)
+            CameraShake cameraShake)
         {
-            _mergeService = mergeService;
+            _mergeSystem = mergeSystem;
             _cubeConfig = cubeConfig;
-            _scoreService = scoreService;
+            _scoreSystem = scoreSystem;
             _assetProviderService = assetProviderService;
-            _cameraShakeService = cameraShakeService;
+            _cameraShake = cameraShake;
             
             var particles = _assetProviderService.LoadAssetFromResources<ParticleSystem>("MergeParticlesView");
             _mergeParticles = Instantiate(particles, transform.position, Quaternion.identity);
             _mergeParticles.Stop();
             
-            _cameraShakeService.Initialize();
+            _cameraShake.Initialize();
         }
         
         private void Awake()
@@ -87,7 +87,7 @@ namespace Gameplay.Cube
             
             _mergeParticles.transform.position = transform.position;
             _mergeParticles.Play();
-            _cameraShakeService.Shake().Forget();
+            _cameraShake.Shake().Forget();
             
             DOVirtual.DelayedCall(0.4f, () => _collider.enabled = true);
         }
@@ -102,7 +102,7 @@ namespace Gameplay.Cube
             float relativeVelocity = collision.relativeVelocity.magnitude;
             if (relativeVelocity < _cubeConfig.MinMergeVelocity) return;
 
-            if (_mergeService.TryMerge(this, other, out var survivor))
+            if (_mergeSystem.TryMerge(this, other, out var survivor))
                 survivor.MergeWith(this == survivor ? other : this);
         }
         
@@ -122,11 +122,11 @@ namespace Gameplay.Cube
             PlayMergeAnimation();
             Launch(mergeImpulseDir * _cubeConfig.MergeImpulseForce / 10);
 
-            _mergeService.UnregisterCube(other);
+            _mergeSystem.UnregisterCube(other);
             Destroy(other.gameObject);
-            _mergeService.WakeUpAll();
-            _mergeService.CheckNeighboursAfterMerge(this);
-            _scoreService.AddScore(newValue);
+            _mergeSystem.WakeUpAll();
+            _mergeSystem.CheckNeighboursAfterMerge(this);
+            _scoreSystem.AddScore(newValue);
         }
     }
 }

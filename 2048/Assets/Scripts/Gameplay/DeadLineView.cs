@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Gameplay
 {
-    public class GameOverTriggerView : MonoBehaviour
+    public class DeadLineView : MonoBehaviour
     {
         public event Action OnGameOver;
 

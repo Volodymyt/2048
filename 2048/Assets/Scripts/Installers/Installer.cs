@@ -39,10 +39,10 @@ namespace Installers
         {
             Container.Bind<IAssetProviderService>().To<AssetProviderService>().AsSingle();
             Container.BindInterfacesAndSelfTo<InputService>().AsSingle();
-            Container.Bind<MergeService>().AsSingle();
-            Container.Bind<ScoreService>().AsSingle();
-            Container.Bind<AutoMergeService>().AsSingle();
-            Container.Bind<CameraShakeService>().AsSingle();
+            Container.Bind<MergeSystem>().AsSingle();
+            Container.Bind<ScoreSystem>().AsSingle();
+            Container.Bind<AutoMerge>().AsSingle();
+            Container.Bind<CameraShake>().AsSingle();
         }
     }
 }
