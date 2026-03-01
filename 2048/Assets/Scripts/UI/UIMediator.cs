@@ -12,7 +12,6 @@ namespace UI
 
         private Canvas _mainCanvas;
         private ScoreView _scoreView;
-        private DeadLineView _deadLine;
         private GameOverView _gameOverView;
         private AutoMergeButtonView _autoMergeButton;
 
@@ -29,8 +28,6 @@ namespace UI
             _mainCanvas = _genericFactory.Create<Canvas>(Constants.MainCanvasView);
             
             _scoreView = _genericFactory.Create<ScoreView>(Constants.ScoreViewPath, _mainCanvas.transform);
-
-            _deadLine = _genericFactory.Create<DeadLineView>(Constants.DeadLinePath);
 
             _gameOverView = _genericFactory.Create<GameOverView>(Constants.GameOverViewPath, _mainCanvas.transform);
             _gameOverView.RestartButton.onClick.AddListener(OnRestartClicked);
@@ -61,7 +58,6 @@ namespace UI
         private void Subscribe()
         {
             _gameMediator.OnScoreChanged += _scoreView.UpdateScore;
-            _deadLine.OnGameOver += _gameMediator.HandleGameOver;
             _gameMediator.OnGameOver += HandleGameOver;
         }
 
@@ -69,7 +65,6 @@ namespace UI
         {
             _gameMediator.OnGameOver -= HandleGameOver;
             _gameMediator.OnScoreChanged -= _scoreView.UpdateScore;
-            _gameMediator.OnGameOver -= HandleGameOver;
         }
 
         public void Dispose()

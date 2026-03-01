@@ -18,8 +18,11 @@ namespace Gameplay
         private readonly ScoreSystem _scoreSystem;
         private readonly AutoMerge _autoMerge;
         private readonly CubeSpawner _cubeSpawner;
+        private readonly GenericFactory _genericFactory;
 
         private CubeView _currentCube;
+        private DeadLineView _deadLineView;
+        
         private bool _canLaunch = true;
 
         private Action _onFingerUp;
@@ -38,7 +41,8 @@ namespace Gameplay
             CubeConfig cubeConfig,
             BoardConfig boardConfig,
             ScoreSystem scoreSystem,
-            AutoMerge autoMerge)
+            AutoMerge autoMerge,
+            GenericFactory genericFactory)
         {
             _cubeSpawner = spawner;
             _inputService = inputService;
@@ -47,10 +51,13 @@ namespace Gameplay
             _boardConfig = boardConfig;
             _scoreSystem = scoreSystem;
             _autoMerge = autoMerge;
+            _genericFactory = genericFactory;
         }
 
         public void Construct()
         {
+            _deadLineView = _genericFactory.Create<DeadLineView>(Constants.DeadLinePath);
+            
             SubscribeInput();
             _cubeSpawner.Initialize();
             SpawnNextCube();
@@ -98,12 +105,15 @@ namespace Gameplay
             _onFingerUp = () => LaunchCube().Forget();
             _inputService.OnFingerDrag += MoveCube;
             _inputService.OnFingerUp += _onFingerUp;
+            _deadLineView.OnGameOver += HandleGameOver;
+
         }
 
         private void UnsubscribeInput()
         {
             _inputService.OnFingerDrag -= MoveCube;
             _inputService.OnFingerUp -= _onFingerUp;
+            _deadLineView.OnGameOver -= HandleGameOver;
         }
 
         private void MoveCube(float delta)
